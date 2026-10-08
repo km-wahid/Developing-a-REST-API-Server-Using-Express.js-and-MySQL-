@@ -58,7 +58,7 @@ The teacher’s SQL is preserved in `database.sql`, with `USE movie_info;` added
 | Reuse a movie ID | HTTP 409 with an error message | [Record after running] |
 | Missing or invalid fields | HTTP 400 with an error message | [Record after running] |
 
-Runtime testing is pending because the preparation environment could not install dependencies or access a MySQL server. Expected results above are not observed results.
+Dependencies were installed and the automated API test passed using a simulated database. Starting the development server failed with `ECONNREFUSED` at `127.0.0.1:3306`. Real MySQL and browser testing remain pending. Expected results above are not observed database results.
 
 ## Discussion
 
