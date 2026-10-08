@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 5 — Movie REST API</title>
+  <style>
+    body { font: 16px system-ui; max-width: 720px; margin: 40px auto; padding: 0 20px; }
+    label { display: block; margin-top: 16px; }
+    input { display: block; padding: 8px; width: 100%; box-sizing: border-box; }
+    button { padding: 10px 16px; margin-top: 16px; cursor: pointer; }
+    pre { background: #f1f5f9; padding: 16px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Lab 5: Movie REST API</h1>
+  <p>Express.js executes SELECT and INSERT queries in the movie_info MySQL database.</p>
+  <nav aria-label="Retrieve data">
+    <a href="/api/movies">Movies</a> · <a href="/api/directors">Directors</a> ·
+    <a href="/api/actors">Actors</a> · <a href="/api/characters">Characters</a> ·
+    <a href="/api/movie-characters">Movie–character relationships</a>
+  </nav>
+  <h2>Insert a movie</h2>
+  <p>The supplied data uses movie IDs 1–11 and director IDs 1–8. Choose an unused movie ID and an existing director ID.</p>
+  <form id="movie-form">
+    <label>Movie ID <input name="Movie_ID" type="number" min="1" max="2147483647" step="1" value="12" required></label>
+    <label>Movie name <input name="Movie_Name" required maxlength="50"></label>
+    <label>Genre <input name="Genre" required maxlength="30"></label>
+    <label>Year <input name="Year" type="number" min="1" max="9999" step="1" required></label>
+    <label>IMDb rating <input name="IMDb_Rating" type="number" min="0" max="10" step="0.1" required></label>
+    <label>Director ID <input name="Director_ID" type="number" min="1" max="2147483647" step="1" required></label>
+    <button type="submit">Insert movie (POST)</button>
+  </form>
+  <button id="load" type="button">Retrieve movies (GET)</button>
+  <pre id="output" aria-live="polite">Click Retrieve movies to test the API.</pre>
+  <script>
+    const output = document.getElementById('output');
+    async function request(options) {
+      try {
+        const response = await fetch('/api/movies', options);
+        output.textContent = `HTTP ${response.status}\n${JSON.stringify(await response.json(), null, 2)}`;
+        return response.ok;
+      } catch (error) {
+        output.textContent = `Request failed: ${error.message}`;
+        return false;
+      }
+    }
+    document.getElementById('load').addEventListener('click', () => request());
+    document.getElementById('movie-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = form.querySelector('button');
+      const movie = Object.fromEntries(new FormData(form));
+      for (const field of ['Movie_ID', 'Year', 'IMDb_Rating', 'Director_ID']) {
+        movie[field] = Number(movie[field]);
+      }
+      button.disabled = true;
+      const success = await request({
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(movie),
+      });
+      button.disabled = false;
+      if (success) form.reset();
+    });
+  </script>
+</body>
+</html>
